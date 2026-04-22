@@ -38,4 +38,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(InventoryMovement::class);
     }
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\RawMaterial\RawMaterialController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Purchase\PurchaseController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('roles', [AccessControlController::class, 'roles']);
@@ -35,4 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('inventories/{inventory}', [InventoryController::class, 'show']);
     Route::get('inventories/{inventory}/movements', [InventoryController::class, 'movements']);
     Route::post('inventories/{inventory}/adjust', [InventoryController::class, 'adjust']);
+
+    Route::get('purchases', [PurchaseController::class, 'index']);
+    Route::post('purchases', [PurchaseController::class, 'store']);
+    Route::get('purchases/{purchase}', [PurchaseController::class, 'show']);
 });
