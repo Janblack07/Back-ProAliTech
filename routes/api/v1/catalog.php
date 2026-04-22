@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\V1\Purchase\PurchaseController;
 use App\Http\Controllers\Api\V1\Sale\SaleController;
 use App\Http\Controllers\Api\V1\Production\ProductionController;
 use App\Http\Controllers\Api\V1\Recipe\RecipeController;
+use App\Http\Controllers\Api\V1\Analytics\ProfitabilityController;
+use App\Http\Controllers\Api\V1\ProductEvaluation\ProductEvaluationController;
+use App\Http\Controllers\Api\V1\ProductIdea\ProductIdeaController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('roles', [AccessControlController::class, 'roles']);
@@ -56,4 +59,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('productions', [ProductionController::class, 'index']);
     Route::post('productions', [ProductionController::class, 'store']);
     Route::get('productions/{production}', [ProductionController::class, 'show']);
+
+    Route::get('product-ideas', [ProductIdeaController::class, 'index']);
+    Route::post('product-ideas', [ProductIdeaController::class, 'store']);
+    Route::get('product-ideas/{productIdea}', [ProductIdeaController::class, 'show']);
+    Route::put('product-ideas/{productIdea}', [ProductIdeaController::class, 'update']);
+
+    Route::get('product-ideas/{productIdea}/evaluations', [ProductEvaluationController::class, 'index']);
+    Route::post('product-ideas/{productIdea}/evaluations', [ProductEvaluationController::class, 'store']);
+
+    Route::get('analytics/profitability/products', [ProfitabilityController::class, 'products']);
 });

@@ -57,7 +57,16 @@ class User extends Authenticatable
         return $this->hasMany(Income::class);
     }
     public function productions()
-{
-    return $this->hasMany(Production::class);
-}
+    {
+        return $this->hasMany(Production::class);
+    }
+    public function productIdeas()
+    {
+        return $this->hasMany(ProductIdea::class);
+    }
+
+    public function productEvaluations()
+    {
+        return $this->hasMany(ProductEvaluation::class);
+    }
 }
