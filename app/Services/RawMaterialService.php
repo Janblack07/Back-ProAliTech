@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\RawMaterial;
+use Illuminate\Support\Facades\DB;
 
 class RawMaterialService
 {
     public function __construct(
-        protected CloudinaryService $cloudinaryService
+        protected CloudinaryService $cloudinaryService,
+        protected InventoryService $inventoryService
     ) {}
 
     public function paginate(?string $search = null, ?string $type = null, ?bool $status = null, int $perPage = 10)
@@ -36,33 +38,43 @@ class RawMaterialService
 
     public function create(array $data): RawMaterial
     {
-        if (isset($data['image'])) {
-            $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/raw-materials');
-            $data['image_url'] = $upload['secure_url'];
-            $data['image_public_id'] = $upload['public_id'];
-        }
+        return DB::transaction(function () use ($data) {
+            if (isset($data['image'])) {
+                $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/raw-materials');
+                $data['image_url'] = $upload['secure_url'];
+                $data['image_public_id'] = $upload['public_id'];
+            }
 
-        unset($data['image']);
-        $data['status'] = $data['status'] ?? true;
+            unset($data['image']);
+            $data['status'] = $data['status'] ?? true;
 
-        return RawMaterial::create($data);
+            $rawMaterial = RawMaterial::create($data);
+
+            $this->inventoryService->createInventoryForRawMaterial($rawMaterial);
+
+            return $rawMaterial;
+        });
     }
 
     public function update(RawMaterial $rawMaterial, array $data): RawMaterial
     {
-        if (isset($data['image'])) {
-            $this->cloudinaryService->deleteImage($rawMaterial->image_public_id);
+        return DB::transaction(function () use ($rawMaterial, $data) {
+            if (isset($data['image'])) {
+                $this->cloudinaryService->deleteImage($rawMaterial->image_public_id);
 
-            $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/raw-materials');
-            $data['image_url'] = $upload['secure_url'];
-            $data['image_public_id'] = $upload['public_id'];
-        }
+                $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/raw-materials');
+                $data['image_url'] = $upload['secure_url'];
+                $data['image_public_id'] = $upload['public_id'];
+            }
 
-        unset($data['image']);
+            unset($data['image']);
 
-        $rawMaterial->update($data);
+            $rawMaterial->update($data);
 
-        return $rawMaterial->refresh();
+            $this->inventoryService->syncRawMaterialInventoryMetadata($rawMaterial->fresh());
+
+            return $rawMaterial->refresh();
+        });
     }
 
     public function delete(RawMaterial $rawMaterial): void

@@ -34,4 +34,8 @@ class User extends Authenticatable
             'status' => 'boolean',
         ];
     }
+    public function inventoryMovements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
 }

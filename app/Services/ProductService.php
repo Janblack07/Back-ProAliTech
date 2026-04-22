@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
     public function __construct(
-        protected CloudinaryService $cloudinaryService
+        protected CloudinaryService $cloudinaryService,
+        protected InventoryService $inventoryService
     ) {}
 
     public function paginate(?string $search = null, ?int $categoryId = null, ?bool $status = null, int $perPage = 10)
@@ -36,33 +38,43 @@ class ProductService
 
     public function create(array $data): Product
     {
-        if (isset($data['image'])) {
-            $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/products');
-            $data['image_url'] = $upload['secure_url'];
-            $data['image_public_id'] = $upload['public_id'];
-        }
+        return DB::transaction(function () use ($data) {
+            if (isset($data['image'])) {
+                $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/products');
+                $data['image_url'] = $upload['secure_url'];
+                $data['image_public_id'] = $upload['public_id'];
+            }
 
-        unset($data['image']);
-        $data['status'] = $data['status'] ?? true;
+            unset($data['image']);
+            $data['status'] = $data['status'] ?? true;
 
-        return Product::create($data);
+            $product = Product::create($data);
+
+            $this->inventoryService->createInventoryForProduct($product);
+
+            return $product;
+        });
     }
 
     public function update(Product $product, array $data): Product
     {
-        if (isset($data['image'])) {
-            $this->cloudinaryService->deleteImage($product->image_public_id);
+        return DB::transaction(function () use ($product, $data) {
+            if (isset($data['image'])) {
+                $this->cloudinaryService->deleteImage($product->image_public_id);
 
-            $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/products');
-            $data['image_url'] = $upload['secure_url'];
-            $data['image_public_id'] = $upload['public_id'];
-        }
+                $upload = $this->cloudinaryService->uploadImage($data['image'], 'alimenticios/products');
+                $data['image_url'] = $upload['secure_url'];
+                $data['image_public_id'] = $upload['public_id'];
+            }
 
-        unset($data['image']);
+            unset($data['image']);
 
-        $product->update($data);
+            $product->update($data);
 
-        return $product->refresh();
+            $this->inventoryService->syncProductInventoryMetadata($product->fresh());
+
+            return $product->refresh();
+        });
     }
 
     public function delete(Product $product): void

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Auth\AccessControlController;
 use App\Http\Controllers\Api\V1\Category\CategoryController;
+use App\Http\Controllers\Api\V1\Inventory\InventoryController;
 use App\Http\Controllers\Api\V1\Product\ProductController;
 use App\Http\Controllers\Api\V1\RawMaterial\RawMaterialController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
@@ -29,4 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('products/active/list', [ProductController::class, 'active']);
     Route::apiResource('products', ProductController::class);
+
+    Route::get('inventories', [InventoryController::class, 'index']);
+    Route::get('inventories/{inventory}', [InventoryController::class, 'show']);
+    Route::get('inventories/{inventory}/movements', [InventoryController::class, 'movements']);
+    Route::post('inventories/{inventory}/adjust', [InventoryController::class, 'adjust']);
 });
