@@ -48,4 +48,13 @@ class Product extends Model
     {
         return $this->hasMany(SaleDetail::class);
     }
+    public function recipes()
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    public function productions()
+    {
+        return $this->hasMany(Production::class);
+    }
 }

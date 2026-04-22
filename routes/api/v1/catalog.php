@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Purchase\PurchaseController;
 use App\Http\Controllers\Api\V1\Sale\SaleController;
+use App\Http\Controllers\Api\V1\Production\ProductionController;
+use App\Http\Controllers\Api\V1\Recipe\RecipeController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('roles', [AccessControlController::class, 'roles']);
@@ -45,4 +47,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('sales', [SaleController::class, 'index']);
     Route::post('sales', [SaleController::class, 'store']);
     Route::get('sales/{sale}', [SaleController::class, 'show']);
+
+    Route::get('recipes', [RecipeController::class, 'index']);
+    Route::post('recipes', [RecipeController::class, 'store']);
+    Route::get('recipes/{recipe}', [RecipeController::class, 'show']);
+    Route::put('recipes/{recipe}', [RecipeController::class, 'update']);
+
+    Route::get('productions', [ProductionController::class, 'index']);
+    Route::post('productions', [ProductionController::class, 'store']);
+    Route::get('productions/{production}', [ProductionController::class, 'show']);
 });
