@@ -7,8 +7,11 @@ use Illuminate\Http\UploadedFile;
 
 class CloudinaryService
 {
-    public function __construct(
-        private readonly Cloudinary $cloudinary = new Cloudinary([
+    private readonly Cloudinary $cloudinary;
+
+    public function __construct()
+    {
+        $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
                 'api_key'    => env('CLOUDINARY_API_KEY'),
@@ -17,8 +20,8 @@ class CloudinaryService
             'url' => [
                 'secure' => true,
             ],
-        ])
-    ) {}
+        ]);
+    }
 
     public function uploadImage(UploadedFile $file, string $folder = 'alimenticios'): array
     {

@@ -16,18 +16,13 @@ class RawMaterialController extends Controller
     public function __construct(
         protected RawMaterialService $rawMaterialService
     ) {}
+
     public function active(Request $request): JsonResponse
     {
         abort_unless($request->user()->can('raw_materials.read'), 403);
 
-        $status = null;
-        if ($request->filled('status')) {
-            $status = filter_var($request->get('status'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        }
-
         return $this->successResponse(
             $this->rawMaterialService->activeList(),
-            $status,
             'Listado de materias primas activas.'
         );
     }
@@ -36,9 +31,15 @@ class RawMaterialController extends Controller
     {
         abort_unless($request->user()->can('raw_materials.read'), 403);
 
+        $status = null;
+        if ($request->filled('status')) {
+            $status = filter_var($request->get('status'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        }
+
         $rawMaterials = $this->rawMaterialService->paginate(
             $request->string('search')->toString(),
             $request->filled('material_type') ? $request->string('material_type')->toString() : null,
+            $status,
             (int) $request->integer('per_page', 10)
         );
 

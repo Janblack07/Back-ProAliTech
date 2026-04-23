@@ -12,12 +12,10 @@ class RawMaterialResource extends JsonResource
         return [
             'id' => $this->id,
             'supplier_id' => $this->supplier_id,
-            'supplier' => $this->whenLoaded('supplier', function () {
-                return [
-                    'id' => $this->supplier->id,
-                    'business_name' => $this->supplier->business_name,
-                ];
-            }),
+            'supplier' => $this->supplier ? [
+                'id' => $this->supplier->id,
+                'business_name' => $this->supplier->business_name,
+            ] : null,
             'code' => $this->code,
             'name' => $this->name,
             'description' => $this->description,
